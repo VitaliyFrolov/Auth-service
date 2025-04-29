@@ -19,11 +19,28 @@ func RegisterRoutes(r *gin.Engine) {
 				return
 			}
 
-			if err := service.Register(req.Email, req.Password); err != nil {
+			userID, err := service.Register(req.Email, req.Password)
+			if err != nil {
 				c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 				return
 			}
-			c.JSON(http.StatusOK, gin.H{"message": "registered"})
+
+			accessToken, err := utils.GenerateAccessToken(userID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate access token"})
+				return
+			}
+
+			refreshToken, err := utils.GenerateRefreshToken(userID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate refresh token"})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{
+				"access_token":  accessToken,
+				"refresh_token": refreshToken,
+			})
 		})
 
 		auth.POST("/login", func(c *gin.Context) {
