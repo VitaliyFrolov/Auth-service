@@ -4,13 +4,14 @@ import (
 	"auth-service/internal/config"
 	"auth-service/internal/handler"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func NewApp() {
 	config.ConnectDatabase()
 	r := gin.Default()
-	// r.Use(cors.Default())
+	r.Use(cors.Default())
 
 	handler.RegisterRoutes(r)
 

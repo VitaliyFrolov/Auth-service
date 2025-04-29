@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterRoutes(r *gin.Engine) {
-	auth := r.Group("/auth")
+	auth := r.Group("/api/auth")
 	{
 		auth.POST("/register", func(c *gin.Context) {
 			var req models.User
@@ -19,7 +19,7 @@ func RegisterRoutes(r *gin.Engine) {
 				return
 			}
 
-			if err := service.Register(req.Username, req.Password); err != nil {
+			if err := service.Register(req.Email, req.Password); err != nil {
 				c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 				return
 			}
@@ -33,7 +33,7 @@ func RegisterRoutes(r *gin.Engine) {
 				return
 			}
 
-			accessToken, refreshToken, err := service.Login(req.Username, req.Password)
+			accessToken, refreshToken, err := service.Login(req.Email, req.Password)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				return

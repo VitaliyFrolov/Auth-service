@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"auth-service/internal/models"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,6 +34,12 @@ func ConnectDatabase() {
 	}
 
 	fmt.Println("Connected to the database!")
+
+	// Create users table
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatal("Failed to auto migrate: ", err)
+	}
 
 	DB = db
 }
