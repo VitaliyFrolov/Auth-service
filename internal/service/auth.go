@@ -5,20 +5,27 @@ import (
 	"auth-service/internal/models"
 	"auth-service/internal/utils"
 	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-func Register(email, password string) error {
-	hashedPassword, err := utils.HashPassword(password)
+func Register(email, password string) (uint, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	user := models.User{
 		Email:    email,
-		Password: hashedPassword,
+		Password: string(hashedPassword),
 	}
 
-	return config.DB.Create(&user).Error
+	result := config.DB.Create(&user)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return user.ID, nil
 }
 
 func Login(email, password string) (string, string, error) {
